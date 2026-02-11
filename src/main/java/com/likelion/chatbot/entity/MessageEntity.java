@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -28,7 +29,7 @@ public class MessageEntity {
     // TODO: enum으로 타입 변경
     @Column(nullable = false)
     private String role;
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
     @Column(name = "created_at")
     @CreatedDate
@@ -36,4 +37,11 @@ public class MessageEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id")
     private ConversationEntity conversation;
+
+    @Builder
+    public MessageEntity(String role, String content, ConversationEntity conversation) {
+        this.role = role;
+        this.content = content;
+        this.conversation = conversation;
+    }
 }
