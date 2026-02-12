@@ -6,6 +6,7 @@ import com.likelion.chatbot.service.ConversationService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,5 +27,11 @@ public class ConversationController {
     @GetMapping("/{id}/messages")
     public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable Long id) {
         return ResponseEntity.ok(conversationService.getMessages(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteConversation(@PathVariable Long id) {
+        conversationService.deleteConversation(id);
+        return ResponseEntity.ok("대화가 삭제되었습니다.");
     }
 }

@@ -35,4 +35,13 @@ public class ConversationService {
                 .map(MessageResponse::from)
                 .toList();
     }
+
+    @Transactional
+    public void deleteConversation(Long id) {
+        ConversationEntity conversation = conversationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다. id = " + id));
+        List<MessageEntity> messages = messageRepository.findByConversationId(id);
+        messageRepository.deleteAll(messages);
+        conversationRepository.delete(conversation);
+    }
 }
