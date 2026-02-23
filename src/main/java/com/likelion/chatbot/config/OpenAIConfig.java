@@ -20,7 +20,7 @@ public class OpenAIConfig {
     @Bean
     public HttpHeaders httpHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + apiKey);
+        headers.setBearerAuth(apiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
         return headers;
     }

@@ -9,6 +9,7 @@ import lombok.Getter;
 public class OpenAIRequest {
     private String model;
     private List<OpenAIMessage> messages;
+    private boolean stream;
 
     @Getter
     @Builder
