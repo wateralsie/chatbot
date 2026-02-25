@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -32,6 +33,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RestClientException.class)
     public ResponseEntity<ExceptionResponse> handleOpenAIError(RestClientException e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(new ExceptionResponse(503, "AI 서비스에 연결할 수 없습니다."));
+    }
+
+    @ExceptionHandler(WebClientResponseException.class)
+    public ResponseEntity<ExceptionResponse> handleOpenAIStreamingError(WebClientResponseException e) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(new ExceptionResponse(503, "AI 서비스에 연결할 수 없습니다."));
     }

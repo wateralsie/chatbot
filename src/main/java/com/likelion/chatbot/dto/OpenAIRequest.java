@@ -2,6 +2,7 @@ package com.likelion.chatbot.dto;
 
 import java.util.List;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 
 @Getter
