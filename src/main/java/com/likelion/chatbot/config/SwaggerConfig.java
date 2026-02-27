@@ -16,7 +16,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("AI Chatbot API")
-                        .description("GPT 기반 챗봇 API 서버")
+                        .description("GPT 기반 음식 영양성분 분석 챗봇 API 문서입니다.")
                         .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList("ApiKey"))
                 .components(new Components()
