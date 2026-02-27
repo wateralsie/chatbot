@@ -40,7 +40,8 @@ public class ConversationEntity {
     private UserEntity user;
 
     @Builder
-    public ConversationEntity(String title) {
+    public ConversationEntity(String title, UserEntity user) {
         this.title = title;
+        this.user = user;
     }
 }

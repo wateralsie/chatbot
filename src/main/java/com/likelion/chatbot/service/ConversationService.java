@@ -5,11 +5,13 @@ import com.likelion.chatbot.exception.ExceptionCode;
 import com.likelion.chatbot.dto.MessageResponse;
 import com.likelion.chatbot.entity.ConversationEntity;
 import com.likelion.chatbot.entity.MessageEntity;
+import com.likelion.chatbot.entity.UserEntity;
 import com.likelion.chatbot.exception.ChatbotException;
 import com.likelion.chatbot.repository.ConversationRepository;
 import com.likelion.chatbot.repository.MessageRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +24,8 @@ public class ConversationService {
 
     @Transactional
     public List<ConversationResponse> getConversations() {
-        return conversationRepository.findAllByOrderByUpdatedAtDesc()
+        UserEntity currentUser = getCurrentUser();
+        return conversationRepository.findAllByUserOrderByUpdatedAtDesc(currentUser)
                 .stream()
                 .map(ConversationResponse::from)
                 .toList();
@@ -30,7 +33,8 @@ public class ConversationService {
 
     @Transactional
     public List<MessageResponse> getMessages(Long conversationId) {
-        conversationRepository.findById(conversationId)
+        UserEntity currentUser = getCurrentUser();
+        conversationRepository.findByIdAndUser(conversationId, currentUser)
                 .orElseThrow(() -> new ChatbotException(ExceptionCode.NOT_FOUND));
         return messageRepository.findByConversationId(conversationId)
                 .stream()
@@ -40,10 +44,15 @@ public class ConversationService {
 
     @Transactional
     public void deleteConversation(Long id) {
-        ConversationEntity conversation = conversationRepository.findById(id)
+        UserEntity currentUser = getCurrentUser();
+        ConversationEntity conversation = conversationRepository.findByIdAndUser(id, currentUser)
                 .orElseThrow(() -> new ChatbotException(ExceptionCode.NOT_FOUND));
         List<MessageEntity> messages = messageRepository.findByConversationId(id);
         messageRepository.deleteAll(messages);
         conversationRepository.delete(conversation);
+    }
+
+    private UserEntity getCurrentUser() {
+        return (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

@@ -6,12 +6,14 @@ import com.likelion.chatbot.dto.ChatStreamingResponse;
 import com.likelion.chatbot.exception.ExceptionCode;
 import com.likelion.chatbot.entity.ConversationEntity;
 import com.likelion.chatbot.entity.MessageEntity;
+import com.likelion.chatbot.entity.UserEntity;
 import com.likelion.chatbot.exception.ChatbotException;
 import com.likelion.chatbot.repository.ConversationRepository;
 import com.likelion.chatbot.repository.MessageRepository;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,14 +32,17 @@ public class ChatService {
 
     @Transactional
     public ChatResponse chat(ChatRequest request) {
+        UserEntity currentUser = getCurrentUser();
+
         // 1. 대화 조회 또는 생성
         ConversationEntity conversation;
         if (request.getConversationId() != null) {
-            conversation = conversationRepository.findById(request.getConversationId())
+            conversation = conversationRepository.findByIdAndUser(request.getConversationId(), currentUser)
                     .orElseThrow(() -> new ChatbotException(ExceptionCode.NOT_FOUND));
         } else {
             conversation = ConversationEntity.builder()
                     .title(request.getMessage().substring(0, Math.min(50, request.getMessage().length())))
+                    .user(currentUser)
                     .build();
             conversationRepository.save(conversation);
         }
@@ -66,7 +71,6 @@ public class ChatService {
                 .build();
         messageRepository.save(assistantMessage);
 
-        // 5. 응답 반환
         return ChatResponse.builder()
                 .conversationId(conversation.getId())
                 .answer(aiResponse)
@@ -74,14 +78,17 @@ public class ChatService {
     }
 
     public Flux<ChatStreamingResponse> chatStreaming(ChatRequest request) {
+        UserEntity currentUser = getCurrentUser();
+
         // 1. 대화 조회 또는 생성
         ConversationEntity conversation;
         if (request.getConversationId() != null) {
-            conversation = conversationRepository.findById(request.getConversationId())
+            conversation = conversationRepository.findByIdAndUser(request.getConversationId(), currentUser)
                     .orElseThrow(() -> new ChatbotException(ExceptionCode.NOT_FOUND));
         } else {
             conversation = ConversationEntity.builder()
                     .title(request.getMessage().substring(0, Math.min(50, request.getMessage().length())))
+                    .user(currentUser)
                     .build();
             conversationRepository.save(conversation);
         }
@@ -131,5 +138,9 @@ public class ChatService {
                     .subscribeOn(Schedulers.boundedElastic())
                     .subscribe();
                 });
+    }
+
+    private UserEntity getCurrentUser() {
+        return (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

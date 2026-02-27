@@ -1,15 +1,16 @@
 package com.likelion.chatbot.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelion.chatbot.entity.UserEntity;
 import com.likelion.chatbot.exception.ExceptionCode;
 import com.likelion.chatbot.exception.ExceptionResponse;
+import com.likelion.chatbot.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,12 +24,9 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
-    private static final String TOKEN_HEADER_NAME = "Authorization";
-    private static final String TOKEN_PREFIX = "Bearer ";
+    private static final String API_KEY_HEADER = "X-API-Key";
 
-    @Value("${app.api-key}")
-    private String validApiKey;
-
+    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -38,22 +36,22 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authHeader = request.getHeader(TOKEN_HEADER_NAME);
+        String apiKey = request.getHeader(API_KEY_HEADER);
 
-        if (authHeader == null || !authHeader.startsWith(TOKEN_PREFIX)) {
+        if (apiKey == null) {
             sendUnauthorized(response, "API Key가 없습니다.");
             return;
         }
 
-        String apiKey = authHeader.substring(TOKEN_PREFIX.length());
+        UserEntity user = userRepository.findByApiKey(apiKey).orElse(null);
 
-        if (!validApiKey.equals(apiKey)) {
+        if (user == null) {
             sendUnauthorized(response, "유효하지 않은 API Key 입니다.");
             return;
         }
 
         UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(apiKey, null, Collections.emptyList());
+                new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
