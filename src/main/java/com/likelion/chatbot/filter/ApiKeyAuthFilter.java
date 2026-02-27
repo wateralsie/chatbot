@@ -1,6 +1,7 @@
 package com.likelion.chatbot.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelion.chatbot.dto.ExceptionCode;
 import com.likelion.chatbot.dto.ExceptionResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -61,6 +62,6 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private void sendUnauthorized(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(ExceptionResponse.of("UNAUTHORIZED", message)));
+        response.getWriter().write(objectMapper.writeValueAsString(ExceptionResponse.of(ExceptionCode.UNAUTHORIZED, message)));
     }
 }
