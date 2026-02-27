@@ -16,30 +16,30 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleValidation(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors().getFirst().getDefaultMessage();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ExceptionResponse(400, message));
+                .body(ExceptionResponse.of("BAD_REQUEST", message));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ExceptionResponse> handleNotFound(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ExceptionResponse(404, e.getMessage()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponse> handleException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ExceptionResponse(500, "서버 내부 오류가 발생했습니다."));
+                .body(ExceptionResponse.of("NOT_FOUND", e.getMessage()));
     }
 
     @ExceptionHandler(RestClientException.class)
     public ResponseEntity<ExceptionResponse> handleOpenAIError(RestClientException e) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(new ExceptionResponse(503, "AI 서비스에 연결할 수 없습니다."));
+                .body(ExceptionResponse.of("SERVICE_UNAVAILABLE", "AI 서비스에 연결할 수 없습니다."));
     }
 
     @ExceptionHandler(WebClientResponseException.class)
     public ResponseEntity<ExceptionResponse> handleOpenAIStreamingError(WebClientResponseException e) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(new ExceptionResponse(503, "AI 서비스에 연결할 수 없습니다."));
+                .body(ExceptionResponse.of("SERVICE_UNAVAILABLE", "AI 서비스에 연결할 수 없습니다."));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionResponse> handleException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ExceptionResponse.of("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다."));
     }
 }

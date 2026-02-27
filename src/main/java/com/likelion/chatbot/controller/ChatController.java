@@ -1,5 +1,6 @@
 package com.likelion.chatbot.controller;
 
+import com.likelion.chatbot.dto.BaseResponse;
 import com.likelion.chatbot.dto.ChatRequest;
 import com.likelion.chatbot.dto.ChatResponse;
 import com.likelion.chatbot.dto.ChatStreamingResponse;
@@ -23,9 +24,9 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/completions")
-    public ResponseEntity<ChatResponse> chat(@Valid @RequestBody ChatRequest request) {
+    public ResponseEntity<BaseResponse<ChatResponse>> chat(@Valid @RequestBody ChatRequest request) {
         ChatResponse response = chatService.chat(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(BaseResponse.of(response));
     }
 
     @PostMapping(value = "/completions/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

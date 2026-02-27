@@ -1,5 +1,6 @@
 package com.likelion.chatbot.controller;
 
+import com.likelion.chatbot.dto.BaseResponse;
 import com.likelion.chatbot.dto.ConversationResponse;
 import com.likelion.chatbot.dto.MessageResponse;
 import com.likelion.chatbot.service.ConversationService;
@@ -20,18 +21,18 @@ public class ConversationController {
     private final ConversationService conversationService;
 
     @GetMapping
-    public ResponseEntity<List<ConversationResponse>> getConversations() {
-        return ResponseEntity.ok(conversationService.getConversations());
+    public ResponseEntity<BaseResponse<List<ConversationResponse>>> getConversations() {
+        return ResponseEntity.ok(BaseResponse.of(conversationService.getConversations()));
     }
 
     @GetMapping("/{id}/messages")
-    public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable Long id) {
-        return ResponseEntity.ok(conversationService.getMessages(id));
+    public ResponseEntity<BaseResponse<List<MessageResponse>>> getMessages(@PathVariable Long id) {
+        return ResponseEntity.ok(BaseResponse.of(conversationService.getMessages(id)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteConversation(@PathVariable Long id) {
+    public ResponseEntity<BaseResponse<String>> deleteConversation(@PathVariable Long id) {
         conversationService.deleteConversation(id);
-        return ResponseEntity.ok("대화가 삭제되었습니다.");
+        return ResponseEntity.ok(BaseResponse.of("대화가 삭제되었습니다."));
     }
 }
