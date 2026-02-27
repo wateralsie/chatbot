@@ -31,7 +31,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().equals("/api/auth/signup");
+        String uri = request.getRequestURI();
+        return uri.equals("/api/auth/signup") || uri.equals("/api/auth/login");
     }
 
     @Override

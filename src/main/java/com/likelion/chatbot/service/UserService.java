@@ -1,5 +1,6 @@
 package com.likelion.chatbot.service;
 
+import com.likelion.chatbot.dto.LoginRequest;
 import com.likelion.chatbot.dto.SignupRequest;
 import com.likelion.chatbot.dto.SignupResponse;
 import com.likelion.chatbot.entity.UserEntity;
@@ -34,6 +35,17 @@ public class UserService {
         return SignupResponse.builder()
                 .email(user.getEmail())
                 .apiKey(apiKey)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public SignupResponse login(LoginRequest request) {
+        UserEntity user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ChatbotException(ExceptionCode.NOT_FOUND));
+
+        return SignupResponse.builder()
+                .email(user.getEmail())
+                .apiKey(user.getApiKey())
                 .build();
     }
 }
