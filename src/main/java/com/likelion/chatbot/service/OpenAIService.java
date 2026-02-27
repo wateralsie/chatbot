@@ -1,21 +1,23 @@
 package com.likelion.chatbot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.likelion.chatbot.dto.ChatRequest;
 import com.likelion.chatbot.dto.OpenAIRequest;
 import com.likelion.chatbot.dto.OpenAIResponse;
 import com.likelion.chatbot.dto.OpenAIStreamingResponse;
 import com.likelion.chatbot.entity.MessageEntity;
+import com.likelion.chatbot.exception.ChatbotException;
+import com.likelion.chatbot.exception.ExceptionCode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 
 @Service
@@ -85,9 +87,12 @@ public class OpenAIService {
                 .build();
 
         HttpEntity<OpenAIRequest> request = new HttpEntity<>(requestBody, httpHeaders);
-        OpenAIResponse response = restTemplate.postForObject(OPENAI_API_URL, request, OpenAIResponse.class);
-
-        return response.getChoices().getFirst().getMessage().getContent();
+        try {
+            OpenAIResponse response = restTemplate.postForObject(OPENAI_API_URL, request, OpenAIResponse.class);
+            return response.getChoices().getFirst().getMessage().getContent();
+        } catch (RestClientException e) {
+            throw new ChatbotException(ExceptionCode.SERVICE_UNAVAILABLE);
+        }
     }
 
     public Flux<String> chatStreaming(List<MessageEntity> messages) {
@@ -121,9 +126,9 @@ public class OpenAIService {
                         }
                         return null;
                     } catch (JsonProcessingException e) {
-                        // TODO: 에러 처리
                         return null;
                     }
-                });
+                })
+                .onErrorMap(WebClientResponseException.class, e -> new ChatbotException(ExceptionCode.SERVICE_UNAVAILABLE));
     }
 }

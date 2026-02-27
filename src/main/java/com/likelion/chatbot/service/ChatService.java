@@ -3,13 +3,14 @@ package com.likelion.chatbot.service;
 import com.likelion.chatbot.dto.ChatRequest;
 import com.likelion.chatbot.dto.ChatResponse;
 import com.likelion.chatbot.dto.ChatStreamingResponse;
+import com.likelion.chatbot.exception.ExceptionCode;
 import com.likelion.chatbot.entity.ConversationEntity;
 import com.likelion.chatbot.entity.MessageEntity;
+import com.likelion.chatbot.exception.ChatbotException;
 import com.likelion.chatbot.repository.ConversationRepository;
 import com.likelion.chatbot.repository.MessageRepository;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +34,7 @@ public class ChatService {
         ConversationEntity conversation;
         if (request.getConversationId() != null) {
             conversation = conversationRepository.findById(request.getConversationId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다. id = " + request.getConversationId()));
+                    .orElseThrow(() -> new ChatbotException(ExceptionCode.NOT_FOUND));
         } else {
             conversation = ConversationEntity.builder()
                     .title(request.getMessage().substring(0, Math.min(50, request.getMessage().length())))
@@ -77,7 +78,7 @@ public class ChatService {
         ConversationEntity conversation;
         if (request.getConversationId() != null) {
             conversation = conversationRepository.findById(request.getConversationId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다. id = " + request.getConversationId()));
+                    .orElseThrow(() -> new ChatbotException(ExceptionCode.NOT_FOUND));
         } else {
             conversation = ConversationEntity.builder()
                     .title(request.getMessage().substring(0, Math.min(50, request.getMessage().length())))

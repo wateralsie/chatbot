@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ChatRequest {
+    @NotBlank(message = "메시지를 입력해주세요.")
     private String message;
     @JsonProperty("conversation_id")
     private Long conversationId;

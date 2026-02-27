@@ -1,9 +1,11 @@
 package com.likelion.chatbot.service;
 
 import com.likelion.chatbot.dto.ConversationResponse;
+import com.likelion.chatbot.exception.ExceptionCode;
 import com.likelion.chatbot.dto.MessageResponse;
 import com.likelion.chatbot.entity.ConversationEntity;
 import com.likelion.chatbot.entity.MessageEntity;
+import com.likelion.chatbot.exception.ChatbotException;
 import com.likelion.chatbot.repository.ConversationRepository;
 import com.likelion.chatbot.repository.MessageRepository;
 import java.util.List;
@@ -29,7 +31,7 @@ public class ConversationService {
     @Transactional
     public List<MessageResponse> getMessages(Long conversationId) {
         conversationRepository.findById(conversationId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다. id = " + conversationId));
+                .orElseThrow(() -> new ChatbotException(ExceptionCode.NOT_FOUND));
         return messageRepository.findByConversationId(conversationId)
                 .stream()
                 .map(MessageResponse::from)
@@ -39,7 +41,7 @@ public class ConversationService {
     @Transactional
     public void deleteConversation(Long id) {
         ConversationEntity conversation = conversationRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 대화입니다. id = " + id));
+                .orElseThrow(() -> new ChatbotException(ExceptionCode.NOT_FOUND));
         List<MessageEntity> messages = messageRepository.findByConversationId(id);
         messageRepository.deleteAll(messages);
         conversationRepository.delete(conversation);

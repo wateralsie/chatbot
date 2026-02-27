@@ -1,8 +1,8 @@
 package com.likelion.chatbot.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.likelion.chatbot.dto.ExceptionCode;
-import com.likelion.chatbot.dto.ExceptionResponse;
+import com.likelion.chatbot.exception.ExceptionCode;
+import com.likelion.chatbot.exception.ExceptionResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

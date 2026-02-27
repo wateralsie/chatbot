@@ -1,4 +1,4 @@
-package com.likelion.chatbot.dto;
+package com.likelion.chatbot.exception;
 
 import lombok.AccessLevel;
 import lombok.Builder;
